@@ -4,9 +4,21 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/pfandzelter/bibclean/pkg/bibtex"
 )
+
+var types []string = []string{"inproceedings",
+	"article",
+	"book",
+	"incollection",
+	"masterthesis",
+	"misc",
+	"phdthesis",
+	"techreport",
+	"unpublished",
+}
 
 func main() {
 
@@ -26,8 +38,14 @@ func main() {
 
 	elements, err := bibtex.Parse(contents)
 
-	for _, element := range elements {
+	for _, t := range types {
 
-		fmt.Printf("%s\n\n", element)
+		fmt.Printf("// --- %s ---\n\n", strings.ToUpper(t))
+
+		for _, element := range elements {
+			if element.Type == t {
+				fmt.Printf("%s\n\n", element)
+			}
+		}
 	}
 }

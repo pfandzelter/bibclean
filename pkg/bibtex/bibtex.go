@@ -72,6 +72,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 type Element struct {
 	XMLName xml.Name          `json:"-"`
 	ID      string            `xml:"id" json:"id"`
+	Key     string            `xml:"key" json:"key"`
 	Type    string            `xml:"type" json:"type"`
 	Tags    map[string]string `xml:"tags" json:"tags"`
 }
@@ -203,6 +204,7 @@ func mkElement(elementType string, buf []byte) (*Element, error) {
 		token   *tok.Token
 		err     error
 		tags    map[string]string
+		id      string
 	)
 
 	element := new(Element)
@@ -246,6 +248,9 @@ func mkElement(elementType string, buf []byte) (*Element, error) {
 			if len(key) > 0 {
 				//make a map entry
 				tags[string(key)] = string(val)
+			} else if len(val) > 0 && len(id) == 0 {
+				// this is our element id^
+				id = string(val)
 			}
 			key = nil
 			val = nil
@@ -258,6 +263,9 @@ func mkElement(elementType string, buf []byte) (*Element, error) {
 	if len(tags) > 0 {
 		element.Tags = tags
 	}
+
+	element.ID = id
+
 	return element, nil
 }
 

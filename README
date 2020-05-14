@@ -1,0 +1,6 @@
+bibclean cleans your bibfile.
+Based on https://github.com/caltechlibrary/bibtex
+
+Warning: strongly opinionated.
+
+Usage: bibclean <bibfile> > newbibfile.bib

@@ -1,3 +1,7 @@
+.idea/
+bibliography.bib
+bibclean
+
 # Binaries for programs and plugins
 *.exe
 *.exe~

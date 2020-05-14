@@ -1,0 +1,6 @@
+github.com/caltechlibrary/bibtex v0.0.8 h1:lrnuAVJqEMaSNLE9jPJ5qDWugZcisWfqjZYK43mn1Lg=
+github.com/caltechlibrary/bibtex v0.0.8/go.mod h1:hnIWUT6c+wfIWrV1UKPHU7pBLQii1ml8c5l36bc7Zb0=
+github.com/caltechlibrary/cli v0.0.16 h1:jgw6dZb3VDy9L5LrWWm1ieqHYAMKgcv+NF6osSj3YRM=
+github.com/caltechlibrary/cli v0.0.16/go.mod h1:BVT+6d/QqcN4UApWR3ufjkkKj2O6+48B4G6iUpP8m38=
+github.com/sotetsuk/gobibtex v1.0.0 h1:+QlycSXKwbsx8QqkhFUVC16JqGW9Qj2omXTqU/vm1JI=
+github.com/sotetsuk/gobibtex v1.0.0/go.mod h1:Cg6rurN28gOi2TokTK2D6TFnbq/E4jqMOEen61w6DnQ=

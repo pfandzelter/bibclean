@@ -120,9 +120,9 @@ func (element *Element) String() string {
 	var out []string
 
 	if len(element.ID) > 0 {
-		out = append(out, fmt.Sprintf("@%s{%s,\n", element.Type, element.ID))
+		out = append(out, fmt.Sprintf("@%s{%s,", element.Type, element.ID))
 	} else {
-		out = append(out, fmt.Sprintf("@%s{\n", element.Type))
+		out = append(out, fmt.Sprintf("@%s{", element.Type))
 	}
 
 	keys := (*elementTypes)[element.Type].Required
@@ -131,14 +131,21 @@ func (element *Element) String() string {
 		val := element.Tags[ky]
 		if len(val) != 0 {
 			val := regexp.MustCompile(`\s+`).ReplaceAllString(val, " ")
-			out = append(out, fmt.Sprintf("    %s = %s,\n", ky, val))
+			out = append(out, fmt.Sprintf("    %s = %s,", ky, val))
 		} else {
-			out = append(out, fmt.Sprintf("    %s = MISSING,\n", ky))
+			out = append(out, fmt.Sprintf("    %s = MISSING,", ky))
 		}
 	}
 
-	out = append(out, fmt.Sprintf("}\n"))
-	return strings.Join(out, "")
+	// remove trailing comma
+	if last := len(out) - 1; last >= 0 {
+		if char := len(out[last]) - 1; char >= 0 && out[last][char] == ',' {
+			out[last] = out[last][:char]
+		}
+	}
+
+	out = append(out, fmt.Sprintf("}"))
+	return strings.Join(out, "\n")
 }
 
 //

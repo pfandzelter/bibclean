@@ -28,6 +28,6 @@ func main() {
 
 	for _, element := range elements {
 
-		fmt.Printf("%s\n", element)
+		fmt.Printf("%s\n\n", element)
 	}
 }

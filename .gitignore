@@ -1,5 +1,6 @@
 .idea/
-bibliography.bib
+*.bib
+*.bbl
 bibclean
 
 # Binaries for programs and plugins

@@ -2,6 +2,7 @@
 *.bib
 *.bbl
 bibclean
+.vscode/
 
 # Binaries for programs and plugins
 *.exe

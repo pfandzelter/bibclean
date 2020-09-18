@@ -31,13 +31,23 @@ func check(err error) {
 
 func main() {
 
-	var bibfile, newfile, bblfile *string
+	var bibfile, newfile, bblfile, shorten *string
+	var shortenBooktitle, shortenAll bool
 
 	bibfile = flag.String("in", "", "input bibliography file")
 	newfile = flag.String("out", "", "output bibliography file")
 	bblfile = flag.String("bbl", "", "(optional) auxillary .bbl file to check which references have been used in the text")
+	shorten = flag.String("shorten", "", "level of applied title shortening to conform with IEEE citation style, can be \"publication\" (shorten only proceeding and journal titles with some common abbreviations) or \"all\" (aggressive shortening including shortening titles, uses the full list of abbrevations)")
 
 	flag.Parse()
+
+	switch *shorten {
+	case "all":
+		shortenAll = true
+		fallthrough
+	case "publication":
+		shortenBooktitle = true
+	}
 
 	contents, err := ioutil.ReadFile(*bibfile)
 
@@ -62,7 +72,7 @@ func main() {
 		check(err)
 	}
 
-	elements, err := bibtex.Parse(contents)
+	elements, err := bibtex.Parse(contents, shortenBooktitle, shortenAll)
 
 	check(err)
 

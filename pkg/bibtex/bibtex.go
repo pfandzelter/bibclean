@@ -269,8 +269,36 @@ func mkElement(elementType string, buf []byte) (*Element, error) {
 	return element, nil
 }
 
+func (element Element) shortenBooktitle() Element {
+	for tag := range element.Tags {
+		if tag == "booktitle" || tag == "journal" {
+			for old, new := range *ieeeTitleShortforms {
+				//log.Printf("replacing %s with %s in %s", old, new, element.Tags[tag])
+				element.Tags[tag] = strings.Replace(element.Tags[tag], old, new, -1)
+				element.Tags[tag] = strings.Replace(element.Tags[tag], strings.ToLower(old), strings.ToLower(new), -1)
+			}
+		}
+	}
+
+	return element
+}
+
+func (element Element) shortenAll() Element {
+	for tag := range element.Tags {
+		if tag == "title" || tag == "booktitle" || tag == "journal" {
+			for old, new := range *ieeeShortforms {
+				//log.Printf("replacing %s with %s in %s", old, new, element.Tags[tag])
+				element.Tags[tag] = strings.Replace(element.Tags[tag], old, new, -1)
+				element.Tags[tag] = strings.Replace(element.Tags[tag], strings.ToLower(old), strings.ToLower(new), -1)
+			}
+		}
+	}
+
+	return element
+}
+
 // Parse a BibTeX file into appropriate structures
-func Parse(buf []byte) ([]*Element, error) {
+func Parse(buf []byte, shortenBooktitle bool, shortenAll bool) ([]*Element, error) {
 	var (
 		lineNo      int
 		token       *tok.Token
@@ -308,6 +336,14 @@ func Parse(buf []byte) ([]*Element, error) {
 					}
 					lineNo = lineNo + bytes.Count(entrySource, LF)
 					// OK, we have an element, let's append to our array...
+					if shortenBooktitle {
+						*element = (*element).shortenBooktitle()
+					}
+
+					if shortenAll {
+						*element = (*element).shortenAll()
+					}
+
 					elements = append(elements, element)
 				}
 			}

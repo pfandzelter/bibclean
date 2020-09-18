@@ -41,12 +41,21 @@ func main() {
 
 	flag.Parse()
 
+	incorrectUse := (*bibfile == "") || (*newfile == "")
+
 	switch *shorten {
 	case "all":
 		shortenAll = true
 		fallthrough
 	case "publication":
 		shortenBooktitle = true
+	default:
+		incorrectUse = true
+	}
+
+	if incorrectUse {
+		flag.PrintDefaults()
+		os.Exit(1)
 	}
 
 	contents, err := ioutil.ReadFile(*bibfile)

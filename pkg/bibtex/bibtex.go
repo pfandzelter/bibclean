@@ -53,7 +53,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 `
 
 	// DefaultInclude list
-	DefaultInclude = "comment,string,article,book,booklet,inbook,incollection,inproceedings,conference,manual,masterthesis,misc,phdthesis,proceedings,techreport,unpublished"
+	DefaultInclude = "comment,string,article,book,booklet,inbook,incollection,inproceedings,conference,manual,mastersthesis,misc,phdthesis,proceedings,techreport,unpublished"
 
 	// A template for printing an element
 	ElementTmplSrc = `
@@ -98,7 +98,7 @@ var (
 		"inproceedings": {
 			Required: []string{"author", "title", "booktitle", "pages", "month", "year"},
 		},
-		"masterthesis": {
+		"mastersthesis": {
 			Required: []string{"author", "title", "school", "month", "year"},
 		},
 		"misc": {

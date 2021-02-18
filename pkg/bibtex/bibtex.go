@@ -336,6 +336,8 @@ func Parse(buf []byte, shortenBooktitle bool, shortenAll bool) ([]*Element, erro
 					}
 					lineNo = lineNo + bytes.Count(entrySource, LF)
 					// OK, we have an element, let's append to our array...
+
+					// shorten if we must
 					if shortenBooktitle {
 						*element = (*element).shortenBooktitle()
 					}

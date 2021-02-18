@@ -37,7 +37,7 @@ func main() {
 	bibfile = flag.String("in", "", "input bibliography file")
 	newfile = flag.String("out", "", "output bibliography file")
 	bblfile = flag.String("bbl", "", "(optional) auxillary .bbl file to check which references have been used in the text")
-	shorten = flag.String("shorten", "", "level of applied title shortening to conform with IEEE citation style, can be \"publication\" (shorten only proceeding and journal titles with some common abbreviations) or \"all\" (aggressive shortening including shortening titles, uses the full list of abbrevations)")
+	shorten = flag.String("shorten", "", "(optional) level of applied title shortening to conform with IEEE citation style, can be \"publication\" (shorten only proceeding and journal titles with some common abbreviations) or \"all\" (aggressive shortening including shortening titles, uses the full list of abbrevations)")
 
 	flag.Parse()
 
@@ -49,8 +49,6 @@ func main() {
 		fallthrough
 	case "publication":
 		shortenBooktitle = true
-	default:
-		incorrectUse = true
 	}
 
 	if incorrectUse {

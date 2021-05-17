@@ -70,11 +70,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 // Generic Element
 type Element struct {
-	XMLName xml.Name          `json:"-"`
-	ID      string            `xml:"id" json:"id"`
-	Key     string            `xml:"key" json:"key"`
-	Type    string            `xml:"type" json:"type"`
-	Tags    map[string]string `xml:"tags" json:"tags"`
+	XMLName      xml.Name          `json:"-"`
+	ID           string            `xml:"id" json:"id"`
+	Key          string            `xml:"key" json:"key"`
+	Type         string            `xml:"type" json:"type"`
+	Tags         map[string]string `xml:"tags" json:"tags"`
+	RequiredKeys *TagTypes
 }
 
 type Elements []*Element
@@ -85,7 +86,7 @@ type TagTypes struct {
 
 // Entry types
 var (
-	elementTypes = &map[string]*TagTypes{
+	defaultElements = &map[string]*TagTypes{
 		"article": {
 			Required: []string{"author", "title", "journal", "year", "volume", "number", "pages", "publisher"},
 		},
@@ -126,7 +127,7 @@ func (element *Element) String() string {
 		out = append(out, fmt.Sprintf("@%s{", element.Type))
 	}
 
-	keys := (*elementTypes)[element.Type].Required
+	keys := element.RequiredKeys.Required
 
 	for _, ky := range keys {
 		val := element.Tags[ky]
@@ -196,7 +197,7 @@ func Bib(token *tok.Token, buf []byte) (*tok.Token, []byte) {
 	return token, buf
 }
 
-func mkElement(elementType string, buf []byte) (*Element, error) {
+func mkElement(elementType string, additionalFields map[string]struct{}, buf []byte) (*Element, error) {
 	var (
 		key     []byte
 		val     []byte
@@ -209,6 +210,19 @@ func mkElement(elementType string, buf []byte) (*Element, error) {
 
 	element := new(Element)
 	element.Type = elementType
+
+	element.RequiredKeys = &TagTypes{
+		Required: make([]string, len((*defaultElements)[elementType].Required), len((*defaultElements)[elementType].Required)+len(additionalFields)),
+	}
+
+	for i, field := range (*defaultElements)[elementType].Required {
+		element.RequiredKeys.Required[i] = field
+	}
+
+	for f := range additionalFields {
+		element.RequiredKeys.Required = append(element.RequiredKeys.Required, f)
+	}
+
 	tags = make(map[string]string)
 
 	for {
@@ -298,7 +312,8 @@ func (element Element) shortenAll() Element {
 }
 
 // Parse a BibTeX file into appropriate structures
-func Parse(buf []byte, shortenBooktitle bool, shortenAll bool) ([]*Element, error) {
+func Parse(buf []byte, shortenBooktitle bool, shortenAll bool, additionalFields map[string]map[string]struct{}) ([]*Element, error) {
+
 	var (
 		lineNo      int
 		token       *tok.Token
@@ -308,6 +323,7 @@ func Parse(buf []byte, shortenBooktitle bool, shortenAll bool) ([]*Element, erro
 		entrySource []byte
 		LF          = []byte("\n")
 	)
+
 	lineNo = 1
 	for {
 		if len(buf) == 0 {
@@ -330,7 +346,7 @@ func Parse(buf []byte, shortenBooktitle bool, shortenAll bool) ([]*Element, erro
 						return elements, fmt.Errorf("Problem parsing entry at %d", lineNo)
 					}
 					// OK, we have an entry, let's process it.
-					element, err := mkElement(strings.ToLower(string(elementType)), entrySource)
+					element, err := mkElement(strings.ToLower(string(elementType)), additionalFields[strings.ToLower(string(elementType))], entrySource)
 					if err != nil {
 						return elements, fmt.Errorf("Error parsing element at %d, %s", lineNo, err)
 					}

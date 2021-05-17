@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -29,15 +30,52 @@ func check(err error) {
 	}
 }
 
+type additionalFields map[string]map[string]struct{}
+
+func (a *additionalFields) String() string {
+	s := ""
+	for t, f := range *a {
+		s += t
+		s += ":"
+		for field := range f {
+			s += field
+			s += ","
+		}
+		s += "\n"
+	}
+	return s
+}
+
+func (a *additionalFields) Set(v string) error {
+	s := strings.Split(v, ":")
+
+	if len(s) != 2 {
+		return errors.New("value does not have the correct format: use <type>:<field>")
+	}
+
+	fields, ok := (*a)[s[0]]
+
+	if !ok {
+		fields = make(map[string]struct{})
+		(*a)[s[0]] = fields
+	}
+
+	fields[s[1]] = struct{}{}
+
+	return nil
+}
+
 func main() {
 
 	var bibfile, newfile, bblfile, shorten *string
 	var shortenBooktitle, shortenAll bool
+	var additional additionalFields = make(additionalFields)
 
 	bibfile = flag.String("in", "", "input bibliography file")
 	newfile = flag.String("out", "", "output bibliography file")
 	bblfile = flag.String("bbl", "", "(optional) auxillary .bbl file to check which references have been used in the text")
 	shorten = flag.String("shorten", "", "(optional) level of applied title shortening to conform with IEEE citation style, can be \"publication\" (shorten only proceeding and journal titles with some common abbreviations) or \"all\" (aggressive shortening including shortening titles, uses the full list of abbrevations)")
+	flag.Var(&additional, "additional", "Additional fields for entries: specify as many as you like in the form \"--additional=article:booktitle --additional=techreport:address\" (this will add a \"booktitle\" field to \"@article\" entries and an \"address\" field to \"@techreport\" entries)")
 
 	flag.Parse()
 
@@ -79,7 +117,7 @@ func main() {
 		check(err)
 	}
 
-	elements, err := bibtex.Parse(contents, shortenBooktitle, shortenAll)
+	elements, err := bibtex.Parse(contents, shortenBooktitle, shortenAll, additional)
 
 	check(err)
 

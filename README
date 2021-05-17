@@ -6,4 +6,12 @@ Warning: strongly opinionated.
 Install with go (>=1.13) installed: go get -u "github.com/pfandzelter/bibclean"
 (Or download the binary from the release page.)
 
-Usage: bibclean --in <bibfile.bib>  --out <newbibfile.bib> [--bbl <paper.bbl>] [--shorten <all, booktitle>] 
+Usage: bibclean --in <bibfile.bib>  --out <newbibfile.bib> [--bbl <paper.bbl>] [--shorten <all, booktitle>] [--additional <type>:<field>]
+
+If you specify the same input and output file, bibclean will overwrite your original. Use with caution.
+
+Examples:
+IEEE: bibclean --in bibliography.bib  --out bibliography.bib --bbl paper.bbl --shorten booktitle
+IEEE (if you're over the page limit): bibclean --in bibliography.bib  --out bibliography.bib --bbl paper.bbl --shorten all
+ACM: bibclean --in bibliography.bib  --out bibliography.bib --bbl paper.bbl --shorten none
+Wiley (AMA): bibclean --in bibliography.bib  --out bibliography.bib --bbl paper.bbl --shorten booktitle --additional article:booktitle

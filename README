@@ -14,4 +14,4 @@ Examples:
 IEEE: bibclean --in bibliography.bib  --out bibliography.bib --bbl paper.bbl --shorten booktitle
 IEEE (if you're over the page limit): bibclean --in bibliography.bib  --out bibliography.bib --bbl paper.bbl --shorten all
 ACM: bibclean --in bibliography.bib  --out bibliography.bib --bbl paper.bbl --shorten none
-Wiley (AMA): bibclean --in bibliography.bib  --out bibliography.bib --bbl paper.bbl --shorten booktitle --additional article:booktitle
+Wiley (AMA): bibclean --in bibliography.bib  --out bibliography.bib --bbl paper.bbl --shorten booktitle --additional article:booktitle --additional inproceedings:address

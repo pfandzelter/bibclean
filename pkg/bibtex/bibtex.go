@@ -211,6 +211,10 @@ func mkElement(elementType string, additionalFields map[string]struct{}, buf []b
 	element := new(Element)
 	element.Type = elementType
 
+	if _, ok := (*defaultElements)[elementType]; !ok {
+		panic("element type " + elementType + " is unknown!")
+	}
+
 	element.RequiredKeys = &TagTypes{
 		Required: make([]string, len((*defaultElements)[elementType].Required), len((*defaultElements)[elementType].Required)+len(additionalFields)),
 	}

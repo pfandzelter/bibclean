@@ -1,12 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"flag"
 	"fmt"
 	"io"
 	"os"
-	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/pfandzelter/bibclean/pkg/bbl"
@@ -95,18 +96,15 @@ func main() {
 		os.Exit(1)
 	}
 
+	newfilePath, err := filepath.Abs(*newfile)
+
+	check(err)
+
 	contents, err := os.ReadFile(*bibfile)
 
 	check(err)
 
-	tmpFile := path.Join(path.Base(*newfile), ".bibclean.tmp")
-
-	outTmp, err := os.Create(tmpFile)
-
-	check(err)
-
-	defer outTmp.Close()
-	defer os.Remove(tmpFile)
+	buf := bytes.Buffer{}
 
 	usebbl := (*bblfile != "")
 	used := make(map[string]struct{})
@@ -126,44 +124,44 @@ func main() {
 	check(err)
 
 	if usebbl {
-		fmt.Fprintf(outTmp, "// --------------------\n// --- %s ---\n// --------------------\n\n", "USED ENTRIES")
+		fmt.Fprintf(&buf, "// --------------------\n// --- %s ---\n// --------------------\n\n", "USED ENTRIES")
 
 		for _, t := range types {
 
-			fmt.Fprintf(outTmp, "// --- %s ---\n\n", strings.ToUpper(t))
+			fmt.Fprintf(&buf, "// --- %s ---\n\n", strings.ToUpper(t))
 
 			for _, element := range elements {
 				if element.Type == t {
 					if _, ok := used[element.ID]; ok {
-						fmt.Fprintf(outTmp, "%s\n\n", element)
+						fmt.Fprintf(&buf, "%s\n\n", element)
 					}
 				}
 			}
 		}
 
-		fmt.Fprintf(outTmp, "// ----------------------\n// --- %s ---\n// ----------------------\n\n", "UNUSED ENTRIES")
+		fmt.Fprintf(&buf, "// ----------------------\n// --- %s ---\n// ----------------------\n\n", "UNUSED ENTRIES")
 	}
 
 	for _, t := range types {
 
-		fmt.Fprintf(outTmp, "// --- %s ---\n\n", strings.ToUpper(t))
+		fmt.Fprintf(&buf, "// --- %s ---\n\n", strings.ToUpper(t))
 
 		for _, element := range elements {
 			if element.Type == t {
 				if _, ok := used[element.ID]; !usebbl || !ok {
-					fmt.Fprintf(outTmp, "%s\n\n", element)
+					fmt.Fprintf(&buf, "%s\n\n", element)
 				}
 			}
 		}
 	}
 
-	outFile, err := os.Create(*newfile)
+	outFile, err := os.Create(newfilePath)
 
 	check(err)
 
 	defer outFile.Close()
 
-	_, err = io.Copy(outFile, outTmp)
+	_, err = io.Copy(outFile, &buf)
 
 	check(err)
 }

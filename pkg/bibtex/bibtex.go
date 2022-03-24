@@ -121,13 +121,26 @@ var (
 func (element *Element) String() string {
 	var out []string
 
+	keys := element.RequiredKeys.Required
+
+	neededKeys := make(map[string]struct{})
+
+	for _, key := range keys {
+		neededKeys[key] = struct{}{}
+	}
+
+	for key, tag := range element.Tags {
+		// add the keys that we don't need as comments
+		if _, ok := neededKeys[key]; !ok {
+			out = append(out, fmt.Sprintf("// %s: %s", key, tag))
+		}
+	}
+
 	if len(element.ID) > 0 {
 		out = append(out, fmt.Sprintf("@%s{%s,", element.Type, element.ID))
 	} else {
 		out = append(out, fmt.Sprintf("@%s{", element.Type))
 	}
-
-	keys := element.RequiredKeys.Required
 
 	for _, ky := range keys {
 		val := element.Tags[ky]
@@ -146,7 +159,7 @@ func (element *Element) String() string {
 		}
 	}
 
-	out = append(out, fmt.Sprintf("}"))
+	out = append(out, "}")
 	return strings.Join(out, "\n")
 }
 
@@ -347,12 +360,12 @@ func Parse(buf []byte, shortenBooktitle bool, shortenAll bool, additionalFields 
 					buf = tok.Backup(token, buf)
 					entrySource, buf, err = tok.Between([]byte("{"), []byte("}"), []byte(""), buf)
 					if err != nil {
-						return elements, fmt.Errorf("Problem parsing entry at %d", lineNo)
+						return elements, fmt.Errorf("problem parsing entry at %d", lineNo)
 					}
 					// OK, we have an entry, let's process it.
 					element, err := mkElement(strings.ToLower(string(elementType)), additionalFields[strings.ToLower(string(elementType))], entrySource)
 					if err != nil {
-						return elements, fmt.Errorf("Error parsing element at %d, %s", lineNo, err)
+						return elements, fmt.Errorf("error parsing element at %d, %s", lineNo, err)
 					}
 					lineNo = lineNo + bytes.Count(entrySource, LF)
 					// OK, we have an element, let's append to our array...
@@ -372,7 +385,8 @@ func Parse(buf []byte, shortenBooktitle bool, shortenAll bool, additionalFields 
 		}
 	}
 	if len(elements) == 0 {
-		err = fmt.Errorf("no elements found")
+		return nil, fmt.Errorf("no elements found")
 	}
+
 	return elements, nil
 }

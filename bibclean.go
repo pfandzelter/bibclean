@@ -4,8 +4,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/pfandzelter/bibclean/pkg/bbl"
@@ -94,21 +95,24 @@ func main() {
 		os.Exit(1)
 	}
 
-	contents, err := ioutil.ReadFile(*bibfile)
+	contents, err := os.ReadFile(*bibfile)
 
 	check(err)
 
-	out, err := os.Create(*newfile)
+	tmpFile := path.Join(path.Base(*newfile), ".bibclean.tmp")
+
+	outTmp, err := os.Create(tmpFile)
 
 	check(err)
 
-	defer out.Close()
+	defer outTmp.Close()
+	defer os.Remove(tmpFile)
 
 	usebbl := (*bblfile != "")
 	used := make(map[string]struct{})
 
 	if usebbl {
-		bblcontents, err := ioutil.ReadFile(*bblfile)
+		bblcontents, err := os.ReadFile(*bblfile)
 
 		check(err)
 
@@ -122,34 +126,44 @@ func main() {
 	check(err)
 
 	if usebbl {
-		fmt.Fprintf(out, "// --------------------\n// --- %s ---\n// --------------------\n\n", "USED ENTRIES")
+		fmt.Fprintf(outTmp, "// --------------------\n// --- %s ---\n// --------------------\n\n", "USED ENTRIES")
 
 		for _, t := range types {
 
-			fmt.Fprintf(out, "// --- %s ---\n\n", strings.ToUpper(t))
+			fmt.Fprintf(outTmp, "// --- %s ---\n\n", strings.ToUpper(t))
 
 			for _, element := range elements {
 				if element.Type == t {
 					if _, ok := used[element.ID]; ok {
-						fmt.Fprintf(out, "%s\n\n", element)
+						fmt.Fprintf(outTmp, "%s\n\n", element)
 					}
 				}
 			}
 		}
 
-		fmt.Fprintf(out, "// ----------------------\n// --- %s ---\n// ----------------------\n\n", "UNUSED ENTRIES")
+		fmt.Fprintf(outTmp, "// ----------------------\n// --- %s ---\n// ----------------------\n\n", "UNUSED ENTRIES")
 	}
 
 	for _, t := range types {
 
-		fmt.Fprintf(out, "// --- %s ---\n\n", strings.ToUpper(t))
+		fmt.Fprintf(outTmp, "// --- %s ---\n\n", strings.ToUpper(t))
 
 		for _, element := range elements {
 			if element.Type == t {
 				if _, ok := used[element.ID]; !usebbl || !ok {
-					fmt.Fprintf(out, "%s\n\n", element)
+					fmt.Fprintf(outTmp, "%s\n\n", element)
 				}
 			}
 		}
 	}
+
+	outFile, err := os.Create(*newfile)
+
+	check(err)
+
+	defer outFile.Close()
+
+	_, err = io.Copy(outFile, outTmp)
+
+	check(err)
 }

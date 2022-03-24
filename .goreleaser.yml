@@ -6,7 +6,3 @@ builds:
     goarch:
       - amd64
       - arm64
-
-ignore:
-  - goos: windows
-    goarch: arm64

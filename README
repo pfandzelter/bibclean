@@ -3,8 +3,9 @@ Based on https://github.com/caltechlibrary/bibtex
 
 Warning: strongly opinionated.
 
-Install with go (>=1.13) installed: go get -u "github.com/pfandzelter/bibclean"
+Install with go (>=1.17) installed: go install github.com/pfandzelter/bibclean@latest
 (Or download the binary from the release page.)
+(Or clone this repository and "go install".)
 
 Usage: bibclean --in <bibfile.bib>  --out <newbibfile.bib> [--bbl <paper.bbl>] [--shorten <all, booktitle>] [--additional <type>:<field>]
 

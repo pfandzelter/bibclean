@@ -1,5 +1,5 @@
 bibclean cleans your bibfile.
-Based on https://github.com/caltechlibrary/bibtex
+Based on <https://github.com/caltechlibrary/bibtex>
 
 Warning: strongly opinionated.
 
@@ -7,12 +7,13 @@ Install with go (>=1.17) installed: go install github.com/pfandzelter/bibclean@l
 (Or download the binary from the release page.)
 (Or clone this repository and "go install".)
 
-Usage: bibclean --in <bibfile.bib>  --out <newbibfile.bib> [--bbl <paper.bbl>] [--shorten <all, booktitle>] [--additional <type>:<field>]
+Usage: bibclean --in <bibfile.bib>  --out <newbibfile.bib> [--bbl <paper.bbl>] [--shorten <all, booktitle>] [--acm-defaults] [--additional <type>:<field>]
 
 If you specify the same input and output file, bibclean will overwrite your original. Use with caution.
 
 Examples:
+
 IEEE: bibclean --in bibliography.bib  --out bibliography.bib --bbl paper.bbl --shorten booktitle
 IEEE (if you're over the page limit): bibclean --in bibliography.bib  --out bibliography.bib --bbl paper.bbl --shorten all
-ACM: bibclean --in bibliography.bib  --out bibliography.bib --bbl paper.bbl --shorten none
-Wiley (AMA): bibclean --in bibliography.bib  --out bibliography.bib --bbl paper.bbl --shorten none --additional inproceedings:organiztation --additional inproceedings:address
+ACM: bibclean --in bibliography.bib  --out bibliography.bib --bbl paper.bbl --shorten none --acm-defaults
+Wiley (AMA): bibclean --in bibliography.bib  --out bibliography.bib --bbl paper.bbl --shorten none --additional inproceedings:organization --additional inproceedings:address

@@ -1,2 +1,2 @@
-bibclean: bibclean.go pkg
+bibclean: bibclean.go pkg/
 	go build -o bibclean bibclean.go

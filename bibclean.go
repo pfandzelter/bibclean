@@ -25,6 +25,44 @@ var types []string = []string{"inproceedings",
 	"unpublished",
 }
 
+// Entry types
+var (
+	ieeeElements = &map[string][]string{
+		"article":       {"author", "title", "journal", "year", "volume", "number", "pages", "publisher"},
+		"book":          {"author", "editor", "title", "publisher", "year"},
+		"incollection":  {"author", "title", "booktitle", "publisher", "year"},
+		"inproceedings": {"author", "title", "booktitle", "pages", "month", "year"},
+
+		"mastersthesis": {"author", "title", "school", "month", "year"},
+
+		"misc": {"author", "title", "howpublished", "month", "year", "note", "publisher"},
+
+		"phdthesis": {"author", "title", "school", "month", "year"},
+
+		"techreport": {"author", "title", "institution", "booktitle", "month", "year"},
+
+		"unpublished": {"author", "title", "month", "year", "note"},
+	}
+)
+
+// https://www.acm.org/publications/authors/bibtex-formatting
+var (
+	acmElements = &map[string][]string{
+		"article":       {"author", "title", "journal", "issue_date", "volume", "number", "month", "year", "issn", "pages", "articleno", "numpages", "url", "doi", "acmid", "publisher", "address", "issue_date", "Eprint"},
+		"book":          {"author", "title", "year", "isbn", "publisher", "address", "editor"},
+		"incollection":  {"author", "title", "booktitle", "publisher", "pages", "year"},
+		"inproceedings": {"author", "title", "booktitle", "pages", "month", "year", "acmid", "publisher", "address", "series", "location", "numpages", "url", "doi"},
+
+		"mastersthesis": {"author", "title", "school", "month", "year"},
+
+		"online": {"author", "title", "url", "month", "year", "lastaccessed"},
+
+		"phdthesis": {"author", "title", "publisher", "address", "month", "year"},
+
+		"techreport": {"author", "title", "publisher", "address", "source", "booktitle", "month", "year"},
+	}
+)
+
 func check(err error) {
 	if err != nil {
 		fmt.Printf("%s\n", err)
@@ -70,12 +108,14 @@ func (a *additionalFields) Set(v string) error {
 func main() {
 
 	var bibfile, newfile, bblfile, shorten *string
+	var acmDefaults *bool
 	var shortenBooktitle, shortenAll bool
 	var additional additionalFields = make(additionalFields)
 
 	bibfile = flag.String("in", "", "input bibliography file")
 	newfile = flag.String("out", "", "output bibliography file")
 	bblfile = flag.String("bbl", "", "(optional) auxillary .bbl file to check which references have been used in the text")
+	acmDefaults = flag.Bool("acm-defaults", false, "(optional) use ACM defaults instead of IEEE for default entries and fields")
 	shorten = flag.String("shorten", "", "(optional) level of applied title shortening to conform with IEEE citation style, can be \"publication\" (shorten only proceeding and journal titles with some common abbreviations) or \"all\" (aggressive shortening including shortening titles, uses the full list of abbrevations)")
 	flag.Var(&additional, "additional", "Additional fields for entries: specify as many as you like in the form \"--additional=article:booktitle --additional=techreport:address\" (this will add a \"booktitle\" field to \"@article\" entries and an \"address\" field to \"@techreport\" entries)")
 
@@ -119,7 +159,12 @@ func main() {
 		check(err)
 	}
 
-	elements, err := bibtex.Parse(contents, shortenBooktitle, shortenAll, additional)
+	defaultElements := ieeeElements
+	if *acmDefaults {
+		defaultElements = acmElements
+	}
+
+	elements, err := bibtex.Parse(contents, shortenBooktitle, shortenAll, defaultElements, additional)
 
 	check(err)
 

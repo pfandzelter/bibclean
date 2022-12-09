@@ -1,4 +1,3 @@
-//
 // Package bibtex is a quick and dirty BibTeX parser for working with
 // a Bibtex citation
 //
@@ -16,7 +15,6 @@
 // 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
 package bibtex
 
 import (
@@ -83,39 +81,6 @@ type Elements []*Element
 type TagTypes struct {
 	Required []string
 }
-
-// Entry types
-var (
-	defaultElements = &map[string]*TagTypes{
-		"article": {
-			Required: []string{"author", "title", "journal", "year", "volume", "number", "pages", "publisher"},
-		},
-		"book": {
-			Required: []string{"author", "editor", "title", "publisher", "year"},
-		},
-		"incollection": {
-			Required: []string{"author", "title", "booktitle", "publisher", "year"},
-		},
-		"inproceedings": {
-			Required: []string{"author", "title", "booktitle", "pages", "month", "year"},
-		},
-		"mastersthesis": {
-			Required: []string{"author", "title", "school", "month", "year"},
-		},
-		"misc": {
-			Required: []string{"author", "title", "howpublished", "month", "year", "note", "publisher"},
-		},
-		"phdthesis": {
-			Required: []string{"author", "title", "school", "month", "year"},
-		},
-		"techreport": {
-			Required: []string{"author", "title", "institution", "booktitle", "month", "year"},
-		},
-		"unpublished": {
-			Required: []string{"author", "title", "month", "year", "note"},
-		},
-	}
-)
 
 // String renders a single BibTeX element
 func (element *Element) String() string {
@@ -210,7 +175,7 @@ func Bib(token *tok.Token, buf []byte) (*tok.Token, []byte) {
 	return token, buf
 }
 
-func mkElement(elementType string, additionalFields map[string]struct{}, buf []byte) (*Element, error) {
+func mkElement(elementType string, defaultElements *TagTypes, additionalFields map[string]struct{}, buf []byte) (*Element, error) {
 	var (
 		key     []byte
 		val     []byte
@@ -224,15 +189,11 @@ func mkElement(elementType string, additionalFields map[string]struct{}, buf []b
 	element := new(Element)
 	element.Type = elementType
 
-	if _, ok := (*defaultElements)[elementType]; !ok {
-		panic("element type " + elementType + " is unknown!")
-	}
-
 	element.RequiredKeys = &TagTypes{
-		Required: make([]string, len((*defaultElements)[elementType].Required), len((*defaultElements)[elementType].Required)+len(additionalFields)),
+		Required: make([]string, len(defaultElements.Required), len(defaultElements.Required)+len(additionalFields)),
 	}
 
-	for i, field := range (*defaultElements)[elementType].Required {
+	for i, field := range defaultElements.Required {
 		element.RequiredKeys.Required[i] = field
 	}
 
@@ -329,7 +290,7 @@ func (element Element) shortenAll() Element {
 }
 
 // Parse a BibTeX file into appropriate structures
-func Parse(buf []byte, shortenBooktitle bool, shortenAll bool, additionalFields map[string]map[string]struct{}) ([]*Element, error) {
+func Parse(buf []byte, shortenBooktitle bool, shortenAll bool, defaultElements *map[string][]string, additionalFields map[string]map[string]struct{}) ([]*Element, error) {
 
 	var (
 		lineNo      int
@@ -340,6 +301,12 @@ func Parse(buf []byte, shortenBooktitle bool, shortenAll bool, additionalFields 
 		entrySource []byte
 		LF          = []byte("\n")
 	)
+
+	// convert the default elements map to a map of TagTypes
+	defaultFields := make(map[string]*TagTypes)
+	for elementType, fields := range *defaultElements {
+		defaultFields[elementType] = &TagTypes{Required: fields}
+	}
 
 	lineNo = 1
 	for {
@@ -363,9 +330,15 @@ func Parse(buf []byte, shortenBooktitle bool, shortenAll bool, additionalFields 
 						return elements, fmt.Errorf("problem parsing entry at %d", lineNo)
 					}
 					// OK, we have an entry, let's process it.
-					element, err := mkElement(strings.ToLower(string(elementType)), additionalFields[strings.ToLower(string(elementType))], entrySource)
+					et := strings.ToLower(string(elementType))
+
+					if _, ok := defaultFields[et]; !ok {
+						panic("element type " + et + " is unknown!")
+					}
+
+					element, err := mkElement(et, defaultFields[et], additionalFields[et], entrySource)
 					if err != nil {
-						return elements, fmt.Errorf("error parsing element at %d, %s", lineNo, err)
+						return elements, fmt.Errorf("error parsing element at l. %d, %s", lineNo, err)
 					}
 					lineNo = lineNo + bytes.Count(entrySource, LF)
 					// OK, we have an element, let's append to our array...

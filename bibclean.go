@@ -23,17 +23,6 @@ var version = "unknown"
 var commit = "unknown"
 var date = "unknown"
 
-var types []string = []string{"inproceedings",
-	"article",
-	"book",
-	"incollection",
-	"mastersthesis",
-	"misc",
-	"phdthesis",
-	"techreport",
-	"unpublished",
-}
-
 // Entry types
 var (
 	ieeeElements = &map[string][]string{
@@ -180,6 +169,14 @@ func main() {
 		defaultElements = acmElements
 	}
 
+	types := make([]string, len(*defaultElements))
+
+	i := 0
+	for t := range *defaultElements {
+		types[i] = t
+		i++
+	}
+
 	elements, err := bibtex.Parse(contents, shortenBooktitle, shortenAll, defaultElements, additional)
 
 	check(err)
@@ -192,6 +189,8 @@ func main() {
 			fmt.Fprintf(&buf, "// --- %s ---\n\n", strings.ToUpper(t))
 
 			for _, element := range elements {
+				// just noticing that this is terribly inefficient
+				// TODO: fix this
 				if element.Type == t {
 					if _, ok := used[element.ID]; ok {
 						fmt.Fprintf(&buf, "%s\n\n", element)

@@ -186,11 +186,11 @@ func main() {
 	check(err)
 
 	if usebbl {
-		fmt.Fprintf(&buf, "// --------------------\n// --- %s ---\n// --------------------\n\n", "USED ENTRIES")
+		fmt.Fprintf(&buf, "%% --------------------\n%% --- %s ---\n%% --------------------\n\n", "USED ENTRIES")
 
 		for _, t := range types {
 
-			fmt.Fprintf(&buf, "// --- %s ---\n\n", strings.ToUpper(t))
+			fmt.Fprintf(&buf, "%% --- %s ---\n\n", strings.ToUpper(t))
 
 			for _, element := range elements {
 				// just noticing that this is terribly inefficient
@@ -203,12 +203,12 @@ func main() {
 			}
 		}
 
-		fmt.Fprintf(&buf, "// ----------------------\n// --- %s ---\n// ----------------------\n\n", "UNUSED ENTRIES")
+		fmt.Fprintf(&buf, "%% ----------------------\n%% --- %s ---\n%% ----------------------\n\n", "UNUSED ENTRIES")
 	}
 
 	for _, t := range types {
 
-		fmt.Fprintf(&buf, "// --- %s ---\n\n", strings.ToUpper(t))
+		fmt.Fprintf(&buf, "%% --- %s ---\n\n", strings.ToUpper(t))
 
 		for _, element := range elements {
 			if element.Type == t {

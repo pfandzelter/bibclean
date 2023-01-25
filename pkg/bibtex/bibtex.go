@@ -97,7 +97,7 @@ func (element *Element) String() string {
 	for key, tag := range element.Tags {
 		// add the keys that we don't need as comments
 		if _, ok := neededKeys[key]; !ok {
-			out = append(out, fmt.Sprintf("// %s: %s", key, tag))
+			out = append(out, fmt.Sprintf("%% %s: %s", key, tag))
 		}
 	}
 

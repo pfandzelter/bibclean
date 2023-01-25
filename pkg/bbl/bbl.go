@@ -12,7 +12,7 @@ const (
 // Parse parses a bbl file for used bibtex items.
 func Parse(buf []byte) (map[string]struct{}, error) {
 
-	r, err := regexp.Compile(beginr + `\S*}` + endr)
+	r, err := regexp.Compile(beginr + `\S*` + endr)
 
 	if err != nil {
 		return nil, err

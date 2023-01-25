@@ -54,11 +54,11 @@ var (
 
 		"mastersthesis": {"author", "title", "school", "month", "year"},
 
-		"online": {"author", "title", "url", "month", "year", "lastaccessed"},
+		"online": {"author", "organization", "title", "url", "month", "year", "lastaccessed"},
 
-		"phdthesis": {"author", "title", "publisher", "address", "month", "year"},
+		"phdthesis": {"author", "title", "advisor", "school", "address", "month", "year", "url"},
 
-		"techreport": {"author", "title", "publisher", "address", "source", "booktitle", "month", "year"},
+		"techreport": {"author", "title", "institution", "address", "url", "booktitle", "month", "year"},
 	}
 )
 

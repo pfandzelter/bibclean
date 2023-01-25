@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/pfandzelter/bibclean/pkg/bbl"
@@ -176,6 +177,9 @@ func main() {
 		types[i] = t
 		i++
 	}
+
+	// sort types alphabetically
+	sort.Strings(types)
 
 	elements, err := bibtex.Parse(contents, shortenBooktitle, shortenAll, defaultElements, additional)
 

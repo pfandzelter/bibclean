@@ -57,7 +57,7 @@ var (
 // https://www.acm.org/publications/authors/bibtex-formatting
 var (
 	acmElements = &map[string][]string{
-		"article":       {"author", "title", "journal", "issue_date", "volume", "number", "month", "year", "issn", "pages", "articleno", "numpages", "url", "doi", "acmid", "publisher", "address", "issue_date", "Eprint"},
+		"article":       {"author", "title", "journal", "volume", "number", "month", "year", "issn", "pages", "articleno", "numpages", "url", "doi", "acmid", "publisher", "address", "issue_date", "Eprint"},
 		"book":          {"author", "title", "year", "isbn", "publisher", "address", "editor"},
 		"incollection":  {"author", "title", "booktitle", "publisher", "pages", "year"},
 		"inproceedings": {"author", "title", "booktitle", "pages", "month", "year", "acmid", "publisher", "address", "series", "location", "numpages", "url", "doi"},

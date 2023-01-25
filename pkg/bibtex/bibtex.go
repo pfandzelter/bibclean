@@ -333,7 +333,7 @@ func Parse(buf []byte, shortenBooktitle bool, shortenAll bool, defaultElements *
 					et := strings.ToLower(string(elementType))
 
 					if _, ok := defaultFields[et]; !ok {
-						panic("element type " + et + " is unknown!")
+						return nil, fmt.Errorf("element type %s is unknown (line %d)", et, lineNo)
 					}
 
 					element, err := mkElement(et, defaultFields[et], additionalFields[et], entrySource)

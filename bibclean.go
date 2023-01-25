@@ -14,6 +14,15 @@ import (
 	"github.com/pfandzelter/bibclean/pkg/bibtex"
 )
 
+// update this version when making changes by tagging the commit
+// compile with make to get all this information automatically
+// OR go build -ldflags "-X main.version=$(git describe --tags --always) -X main.commit=$(shell git rev-parse HEAD) -X main.date=$(shell date -u '+%Y-%m-%d_%I:%M:%S%p') -X main.builtBy=goreleaser".
+// OR goreleaser will do this automatically
+
+var version = "unknown"
+var commit = "unknown"
+var date = "unknown"
+
 var types []string = []string{"inproceedings",
 	"article",
 	"book",
@@ -107,11 +116,13 @@ func (a *additionalFields) Set(v string) error {
 
 func main() {
 
+	var printVersion *bool
 	var bibfile, newfile, bblfile, shorten *string
 	var acmDefaults *bool
 	var shortenBooktitle, shortenAll bool
 	var additional additionalFields = make(additionalFields)
 
+	printVersion = flag.Bool("version", false, "print bibclean version and exit")
 	bibfile = flag.String("in", "", "input bibliography file")
 	newfile = flag.String("out", "", "output bibliography file")
 	bblfile = flag.String("bbl", "", "(optional) auxillary .bbl file to check which references have been used in the text")
@@ -120,6 +131,11 @@ func main() {
 	flag.Var(&additional, "additional", "Additional fields for entries: specify as many as you like in the form \"--additional=article:booktitle --additional=techreport:address\" (this will add a \"booktitle\" field to \"@article\" entries and an \"address\" field to \"@techreport\" entries)")
 
 	flag.Parse()
+
+	if *printVersion {
+		fmt.Printf("bibclean\nversion %s\nbuilt %s\ncommit %s\n", version, date, commit)
+		os.Exit(0)
+	}
 
 	incorrectUse := (*bibfile == "") || (*newfile == "")
 

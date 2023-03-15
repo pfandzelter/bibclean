@@ -130,11 +130,14 @@ func main() {
 	incorrectUse := (*bibfile == "") || (*newfile == "")
 
 	switch *shorten {
+	case "", "none":
 	case "all":
 		shortenAll = true
 		fallthrough
 	case "publication":
 		shortenBooktitle = true
+	default:
+		incorrectUse = true
 	}
 
 	if incorrectUse {
@@ -178,10 +181,27 @@ func main() {
 		i++
 	}
 
+	plugins := []func(e bibtex.Element) bibtex.Element{
+		bibtex.CleanQuotationMarks,
+		bibtex.AddProcOf,
+		bibtex.CleanCurly,
+		bibtex.CleanDOI,
+		bibtex.CleanPages,
+		bibtex.AddPublisherAddress,
+	}
+
+	if shortenBooktitle {
+		plugins = append(plugins, bibtex.ShortenBooktitle)
+	}
+
+	if shortenAll {
+		plugins = append(plugins, bibtex.ShortenAll)
+	}
+
 	// sort types alphabetically
 	sort.Strings(types)
 
-	elements, err := bibtex.Parse(contents, shortenBooktitle, shortenAll, defaultElements, additional)
+	elements, err := bibtex.Parse(contents, defaultElements, additional, plugins)
 
 	check(err)
 

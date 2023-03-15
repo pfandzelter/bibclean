@@ -261,36 +261,8 @@ func mkElement(elementType string, defaultElements *TagTypes, additionalFields m
 	return element, nil
 }
 
-func (element Element) shortenBooktitle() Element {
-	for tag := range element.Tags {
-		if tag == "booktitle" || tag == "journal" {
-			for old, new := range *ieeeTitleShortforms {
-				//log.Printf("replacing %s with %s in %s", old, new, element.Tags[tag])
-				element.Tags[tag] = strings.Replace(element.Tags[tag], old, new, -1)
-				element.Tags[tag] = strings.Replace(element.Tags[tag], strings.ToLower(old), strings.ToLower(new), -1)
-			}
-		}
-	}
-
-	return element
-}
-
-func (element Element) shortenAll() Element {
-	for tag := range element.Tags {
-		if tag == "title" || tag == "booktitle" || tag == "journal" {
-			for old, new := range *ieeeShortforms {
-				//log.Printf("replacing %s with %s in %s", old, new, element.Tags[tag])
-				element.Tags[tag] = strings.Replace(element.Tags[tag], old, new, -1)
-				element.Tags[tag] = strings.Replace(element.Tags[tag], strings.ToLower(old), strings.ToLower(new), -1)
-			}
-		}
-	}
-
-	return element
-}
-
 // Parse a BibTeX file into appropriate structures
-func Parse(buf []byte, shortenBooktitle bool, shortenAll bool, defaultElements *map[string][]string, additionalFields map[string]map[string]struct{}) ([]*Element, error) {
+func Parse(buf []byte, defaultElements *map[string][]string, additionalFields map[string]map[string]struct{}, plugins []func(Element) Element) ([]*Element, error) {
 
 	var (
 		lineNo      int
@@ -343,15 +315,6 @@ func Parse(buf []byte, shortenBooktitle bool, shortenAll bool, defaultElements *
 					lineNo = lineNo + bytes.Count(entrySource, LF)
 					// OK, we have an element, let's append to our array...
 
-					// shorten if we must
-					if shortenBooktitle {
-						*element = (*element).shortenBooktitle()
-					}
-
-					if shortenAll {
-						*element = (*element).shortenAll()
-					}
-
 					elements = append(elements, element)
 				}
 			}
@@ -359,6 +322,13 @@ func Parse(buf []byte, shortenBooktitle bool, shortenAll bool, defaultElements *
 	}
 	if len(elements) == 0 {
 		return nil, fmt.Errorf("no elements found")
+	}
+
+	// run plugins
+	for _, plugin := range plugins {
+		for _, element := range elements {
+			*element = plugin(*element)
+		}
 	}
 
 	return elements, nil

@@ -54,6 +54,7 @@ func CleanCurly(e Element) Element {
 // CleanQuotationMarks makes sure that only double quotation marks are
 // used in the start and end of the value. Unless the value is only a number.
 // Or a date. Mostly, this is about removing curly braces.
+// Also, we need to change umlaut escapes: \"{a} does not work, it should be {\"a} so the quotes are in braces.
 func CleanQuotationMarks(e Element) Element {
 	for key, val := range e.Tags {
 		if key == "month" {
@@ -74,6 +75,12 @@ func CleanQuotationMarks(e Element) Element {
 		// only at the start and end
 		r := regexp.MustCompile(`^{|}$`)
 		val = r.ReplaceAllString(val, "\"")
+
+		// replace umlaut escapes
+		r = regexp.MustCompile(`\\"\{([a-zA-Z])\}`)
+		// now use a capture group to get the letter and put it in braces
+		val = r.ReplaceAllString(val, `{\"$1}`)
+
 		e.Tags[key] = val
 	}
 

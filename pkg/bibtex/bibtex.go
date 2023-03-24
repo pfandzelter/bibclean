@@ -207,7 +207,7 @@ func mkElement(elementType string, defaultElements *TagTypes, additionalFields m
 		if len(buf) == 0 {
 			if len(key) > 0 {
 				// We have a trailing key/value pair to save.
-				tags[string(key)] = string(val)
+				tags[strings.ToLower(string(key))] = string(val)
 			}
 			break
 		}
@@ -239,7 +239,7 @@ func mkElement(elementType string, defaultElements *TagTypes, additionalFields m
 		case token.Type == "Comma" || len(buf) == 0:
 			if len(key) > 0 {
 				//make a map entry
-				tags[string(key)] = string(val)
+				tags[strings.ToLower(string(key))] = string(val)
 			} else if len(val) > 0 && len(id) == 0 {
 				// this is our element id^
 				id = string(val)

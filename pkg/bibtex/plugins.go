@@ -99,6 +99,11 @@ func AddProcOf(e Element) Element {
 			continue
 		}
 
+		// check if the booktitle is empty or MISSING
+		if val == "" || val == "MISSING" {
+			break
+		}
+
 		// check if the booktitle starts with "Proceedings of the"
 		r := regexp.MustCompile(`^"Proceedings of the`)
 		if r.MatchString(val) {
@@ -106,6 +111,7 @@ func AddProcOf(e Element) Element {
 		}
 
 		e.Tags[key] = "\"Proceedings of the " + val[1:]
+		break
 	}
 
 	return e

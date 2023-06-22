@@ -5,14 +5,15 @@ import (
 )
 
 const (
-	beginr = `\\bibitem(.*\%\n\s*)?{`
+	beginr = `\\(bibitem|entry)(.*\%\n\s*)?{`
+	middle = `[^\s}]*`
 	endr   = `}`
 )
 
 // Parse parses a bbl file for used bibtex items.
 func Parse(buf []byte) (map[string]struct{}, error) {
 
-	r, err := regexp.Compile(beginr + `\S*` + endr)
+	r, err := regexp.Compile(beginr + middle + endr)
 
 	if err != nil {
 		return nil, err

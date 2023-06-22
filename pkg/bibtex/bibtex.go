@@ -66,6 +66,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 `
 )
 
+const MISSING_VAL = "MISSING"
+
 // Generic Element
 type Element struct {
 	XMLName      xml.Name          `json:"-"`
@@ -97,6 +99,10 @@ func (element *Element) String() string {
 	for key, tag := range element.Tags {
 		// add the keys that we don't need as comments
 		if _, ok := neededKeys[key]; !ok {
+			if tag == MISSING_VAL {
+				continue
+			}
+
 			out = append(out, fmt.Sprintf("%% %s: %s", key, tag))
 		}
 	}
@@ -113,7 +119,7 @@ func (element *Element) String() string {
 			val := regexp.MustCompile(`\s+`).ReplaceAllString(val, " ")
 			out = append(out, fmt.Sprintf("    %s = %s,", ky, val))
 		} else {
-			out = append(out, fmt.Sprintf("    %s = MISSING,", ky))
+			out = append(out, fmt.Sprintf("    %s = %s,", ky, MISSING_VAL))
 		}
 	}
 
@@ -193,9 +199,7 @@ func mkElement(elementType string, defaultElements *TagTypes, additionalFields m
 		Required: make([]string, len(defaultElements.Required), len(defaultElements.Required)+len(additionalFields)),
 	}
 
-	for i, field := range defaultElements.Required {
-		element.RequiredKeys.Required[i] = field
-	}
+	copy(element.RequiredKeys.Required, defaultElements.Required)
 
 	for f := range additionalFields {
 		element.RequiredKeys.Required = append(element.RequiredKeys.Required, f)

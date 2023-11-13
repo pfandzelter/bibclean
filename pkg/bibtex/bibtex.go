@@ -245,7 +245,7 @@ func mkElement(elementType string, defaultElements *TagTypes, additionalFields m
 				//make a map entry
 				tags[strings.ToLower(string(key))] = string(val)
 			} else if len(val) > 0 && len(id) == 0 {
-				// this is our element id^
+				// this is our element id
 				id = string(val)
 			}
 			key = nil

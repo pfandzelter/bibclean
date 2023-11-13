@@ -13,6 +13,7 @@ import (
 
 	"github.com/pfandzelter/bibclean/pkg/bbl"
 	"github.com/pfandzelter/bibclean/pkg/bibtex"
+	"github.com/pfandzelter/bibclean/pkg/merge"
 )
 
 // update this version when making changes by tagging the commit
@@ -68,7 +69,7 @@ func (a *additionalFields) Set(v string) error {
 
 func main() {
 
-	var printVersion *bool
+	var printVersion, noMerge *bool
 	var bibfile, newfile, bblfile, shorten *string
 	var defaults *string
 	var shortenBooktitle, shortenAll bool
@@ -80,6 +81,7 @@ func main() {
 	bblfile = flag.String("bbl", "", "(optional) auxillary .bbl file to check which references have been used in the text")
 	defaults = flag.String("defaults", "ieee", "(optional) default data fields, can be \"ieee\" (for IEEEtran.bst), \"acm\" (for ACM-Reference-Format.bst), or \"biblatex\" (for biblatex)")
 	shorten = flag.String("shorten", "", "(optional) level of applied title shortening to conform with IEEE citation style, can be \"publication\" (shorten only proceeding and journal titles with some common abbreviations) or \"all\" (aggressive shortening including shortening titles, uses the full list of abbrevations)")
+	noMerge = flag.Bool("no-merge", false, "(optional) disable merging repeated entries based on key. redundant values will be added as comments")
 	flag.Var(&additional, "additional", "Additional fields for entries: specify as many as you like in the form \"--additional=article:booktitle --additional=techreport:address\" (this will add a \"booktitle\" field to \"@article\" entries and an \"address\" field to \"@techreport\" entries)")
 
 	flag.Parse()
@@ -174,6 +176,12 @@ func main() {
 	elements, err := bibtex.Parse(contents, &e, additional, plugins)
 
 	check(err)
+
+	if !*noMerge {
+		elements, err = merge.MergeElements(elements)
+
+		check(err)
+	}
 
 	if usebbl {
 		fmt.Fprintf(&buf, "%% --------------------\n%% --- %s ---\n%% --------------------\n\n", "USED ENTRIES")

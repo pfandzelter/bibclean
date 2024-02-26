@@ -3,7 +3,7 @@ Based on <https://github.com/caltechlibrary/bibtex>
 
 Warning: strongly opinionated.
 
-Install with go (>=1.17) installed: go install github.com/pfandzelter/bibclean@latest
+Install with go (>=1.22) installed: go install github.com/pfandzelter/bibclean@latest
 (Or download the binary from the release page.)
 (Or clone this repository and "go install".)
 

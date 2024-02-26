@@ -2,12 +2,15 @@ package main
 
 import (
 	"bytes"
+	"cmp"
 	"errors"
 	"flag"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 
@@ -24,6 +27,8 @@ import (
 var version = "unknown"
 var commit = "unknown"
 var date = "unknown"
+
+const terminalWidth = 80
 
 func check(err error) {
 	if err != nil {
@@ -65,6 +70,19 @@ func (a *additionalFields) Set(v string) error {
 	fields[s[1]] = struct{}{}
 
 	return nil
+}
+
+func fmtBreak(s string, n int) string {
+	if len(s) >= n {
+		return s
+	}
+
+	return fmt.Sprintf(
+		"%s %s %s",
+		strings.Repeat("-", int(math.Ceil(float64(n-len(s))/2))-1),
+		s,
+		strings.Repeat("-", int(n-len(s))/2-1),
+	)
 }
 
 func main() {
@@ -170,9 +188,6 @@ func main() {
 		plugins = append(plugins, bibtex.ShortenAll)
 	}
 
-	// sort types alphabetically
-	sort.Strings(types)
-
 	elements, err := bibtex.Parse(contents, &e, additional, plugins)
 
 	check(err)
@@ -183,37 +198,55 @@ func main() {
 		check(err)
 	}
 
-	if usebbl {
-		fmt.Fprintf(&buf, "%% --------------------\n%% --- %s ---\n%% --------------------\n\n", "USED ENTRIES")
+	// sort types alphabetically
+	sort.Strings(types)
 
+	// sort elements by ID
+	elemUsed := make(map[string][]*bibtex.Element)
+	elemDefault := make(map[string][]*bibtex.Element)
+
+	for _, element := range elements {
+		if _, ok := used[element.ID]; ok && usebbl {
+			elemUsed[element.Type] = append(elemUsed[element.Type], element)
+			continue
+		}
+		elemDefault[element.Type] = append(elemDefault[element.Type], element)
+	}
+
+	for _, t := range types {
+		slices.SortFunc(elemUsed[t], func(a, b *bibtex.Element) int {
+			return -cmp.Compare(strings.ToLower(a.ID), strings.ToLower(b.ID))
+		})
+
+		slices.SortFunc(elemDefault[t], func(a, b *bibtex.Element) int {
+			return -cmp.Compare(strings.ToLower(b.ID), strings.ToLower(a.ID))
+		})
+	}
+
+	if usebbl {
+		fmt.Fprintf(&buf, "%% %s\n", strings.Repeat("-", terminalWidth-2))
+		fmt.Fprintf(&buf, "%% %s\n", fmtBreak("USED ENTRIES", terminalWidth-2))
+		fmt.Fprintf(&buf, "%% %s\n\n", strings.Repeat("-", terminalWidth-2))
 		for _, t := range types {
 
-			fmt.Fprintf(&buf, "%% --- %s ---\n\n", strings.ToUpper(t))
+			fmt.Fprintf(&buf, "%% %s\n\n", fmtBreak(strings.ToUpper(t), terminalWidth-2))
 
-			for _, element := range elements {
-				// just noticing that this is terribly inefficient
-				// TODO: fix this
-				if element.Type == t {
-					if _, ok := used[element.ID]; ok {
-						fmt.Fprintf(&buf, "%s\n\n", element)
-					}
-				}
+			for _, element := range elemUsed[t] {
+				fmt.Fprintf(&buf, "%s\n\n", element)
 			}
 		}
 
-		fmt.Fprintf(&buf, "%% ----------------------\n%% --- %s ---\n%% ----------------------\n\n", "UNUSED ENTRIES")
+		fmt.Fprintf(&buf, "%% %s\n", strings.Repeat("-", terminalWidth-2))
+		fmt.Fprintf(&buf, "%% %s\n", fmtBreak("UNUSED ENTRIES", terminalWidth-2))
+		fmt.Fprintf(&buf, "%% %s\n\n", strings.Repeat("-", terminalWidth-2))
 	}
 
 	for _, t := range types {
 
-		fmt.Fprintf(&buf, "%% --- %s ---\n\n", strings.ToUpper(t))
+		fmt.Fprintf(&buf, "%% %s\n\n", fmtBreak(strings.ToUpper(t), terminalWidth-2))
 
-		for _, element := range elements {
-			if element.Type == t {
-				if _, ok := used[element.ID]; !usebbl || !ok {
-					fmt.Fprintf(&buf, "%s\n\n", element)
-				}
-			}
+		for _, element := range elemDefault[t] {
+			fmt.Fprintf(&buf, "%s\n\n", element)
 		}
 	}
 

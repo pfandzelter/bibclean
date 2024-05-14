@@ -215,11 +215,11 @@ func main() {
 
 	for _, t := range types {
 		slices.SortFunc(elemUsed[t], func(a, b *bibtex.Element) int {
-			return -cmp.Compare(strings.ToLower(a.ID), strings.ToLower(b.ID))
+			return cmp.Compare(strings.ToLower(a.ID), strings.ToLower(b.ID))
 		})
 
 		slices.SortFunc(elemDefault[t], func(a, b *bibtex.Element) int {
-			return -cmp.Compare(strings.ToLower(b.ID), strings.ToLower(a.ID))
+			return cmp.Compare(strings.ToLower(a.ID), strings.ToLower(b.ID))
 		})
 	}
 

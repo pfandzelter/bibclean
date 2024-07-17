@@ -215,6 +215,27 @@ func ShortenBooktitle(e Element) Element {
 	return e
 }
 
+// ShortenAuthors truncates the author list for more than three authors.
+func ShortenAuthors(e Element) Element {
+	for key, val := range e.Tags {
+		if key != "author" {
+			continue
+		}
+
+		// check if there are more than three authors
+		r := regexp.MustCompile(`\sand.*and`)
+		if !r.MatchString(val) {
+			continue
+		}
+
+		// replace everything after the first author with "et al."
+		r = regexp.MustCompile(`\sand.*$`)
+		e.Tags[key] = r.ReplaceAllString(val, " and others\"")
+	}
+
+	return e
+}
+
 // ShortenAll replaces long words with approved short forms from IEEE.
 func ShortenAll(e Element) Element {
 	for tag := range e.Tags {
@@ -227,5 +248,5 @@ func ShortenAll(e Element) Element {
 		}
 	}
 
-	return e
+	return ShortenAuthors(e)
 }

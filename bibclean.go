@@ -97,7 +97,7 @@ func main() {
 	bibfile = flag.String("in", "", "input bibliography file")
 	newfile = flag.String("out", "", "output bibliography file")
 	bblfile = flag.String("bbl", "", "(optional) auxillary .bbl file to check which references have been used in the text")
-	defaults = flag.String("defaults", "ieee", "(optional) default data fields, can be \"ieee\" (for IEEEtran.bst), \"acm\" (for ACM-Reference-Format.bst), or \"biblatex\" (for biblatex)")
+	defaults = flag.String("defaults", "acm", "(optional) default data fields, can be \"ieee\" (for IEEEtran.bst), \"acm\" (for ACM-Reference-Format.bst), or \"biblatex\" (for biblatex)")
 	shorten = flag.String("shorten", "", "(optional) level of applied title shortening to conform with IEEE citation style, can be \"publication\" (shorten only proceeding and journal titles with some common abbreviations) or \"all\" (aggressive shortening including shortening titles and author list, uses the full list of abbrevations)")
 	noMerge = flag.Bool("no-merge", false, "(optional) disable merging repeated entries based on key. redundant values will be added as comments")
 	flag.Var(&additional, "additional", "Additional fields for entries: specify as many as you like in the form \"--additional=article:booktitle --additional=techreport:address\" (this will add a \"booktitle\" field to \"@article\" entries and an \"address\" field to \"@techreport\" entries)")

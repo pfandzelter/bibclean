@@ -243,7 +243,10 @@ func mkElement(elementType string, defaultElements *TagTypes, additionalFields m
 		case token.Type == "Comma" || len(buf) == 0:
 			if len(key) > 0 {
 				//make a map entry
-				tags[strings.ToLower(string(key))] = string(val)
+
+				if string(val) != MISSING_VAL {
+					tags[strings.ToLower(string(key))] = string(val)
+				}
 			} else if len(val) > 0 && len(id) == 0 {
 				// this is our element id
 				id = string(val)

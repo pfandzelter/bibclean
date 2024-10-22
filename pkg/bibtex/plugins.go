@@ -65,7 +65,7 @@ func CleanQuotationMarks(e Element) Element {
 
 		// this is probably a bad idea
 		// in case the number of volume does have a letter in it for some reason
-		if key == "year" || key == "number" || key == "volume" {
+		if key == "year" || key == "volume" {
 			r := regexp.MustCompile(`[^\d]`)
 			e.Tags[key] = r.ReplaceAllString(val, "")
 			continue

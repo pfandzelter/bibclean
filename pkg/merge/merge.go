@@ -28,10 +28,15 @@ func MergeElements(orig []*bibtex.Element) ([]*bibtex.Element, error) {
 				// nope!
 				m[elem.ID].Tags[tag] = value
 				continue
-
 			}
-			// add as a copy if not in there already
 
+			// we have a duplicate tag
+			// check if the value is the same
+			if v == value {
+				continue
+			}
+
+			// add as a copy if not in there already
 			copyTag := tag + COPY_POSTFIX
 			v, ok = m[elem.ID].Tags[copyTag]
 

@@ -256,6 +256,7 @@ var fields = map[string]map[string][]string{
 			"month",
 			"year",
 			"note",
+			"urldate",
 		},
 
 		"phdthesis": {

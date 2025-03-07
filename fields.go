@@ -259,6 +259,16 @@ var fields = map[string]map[string][]string{
 			"urldate",
 		},
 
+		"patent": {
+			"author",
+			"title",
+			"number",
+			"year",
+			"month",
+			"holder",
+			"type",
+		},
+
 		"phdthesis": {
 			"author",
 			"title",

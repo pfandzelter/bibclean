@@ -103,7 +103,7 @@ func (element *Element) String() string {
 				continue
 			}
 
-			out = append(out, fmt.Sprintf("%% %s: %s", key, tag))
+			out = append(out, fmt.Sprintf("%% %s = %s", key, tag))
 		}
 	}
 

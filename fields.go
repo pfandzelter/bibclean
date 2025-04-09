@@ -9,6 +9,7 @@ var fields = map[string]map[string][]string{
 			"title",
 			"journal",
 			"year",
+			"month",
 			"volume",
 			"number",
 			"pages",
@@ -28,6 +29,8 @@ var fields = map[string]map[string][]string{
 			"title",
 			"booktitle",
 			"publisher",
+			"editor",
+			"pages",
 			"year",
 		},
 
@@ -35,6 +38,7 @@ var fields = map[string]map[string][]string{
 			"author",
 			"title",
 			"booktitle",
+			"location",
 			"pages",
 			"month",
 			"year",
@@ -48,10 +52,10 @@ var fields = map[string]map[string][]string{
 			"year",
 		},
 
-		"misc": {
+		"online": {
 			"author",
 			"title",
-			"howpublished",
+			"url",
 			"month",
 			"year",
 			"note",
@@ -69,7 +73,9 @@ var fields = map[string]map[string][]string{
 		"techreport": {
 			"author",
 			"title",
+			"number",
 			"institution",
+			"address",
 			"booktitle",
 			"month",
 			"year",
@@ -121,6 +127,9 @@ var fields = map[string]map[string][]string{
 			"title",
 			"booktitle",
 			"publisher",
+			"editor",
+			"doi",
+			"url",
 			"pages",
 			"year",
 		},

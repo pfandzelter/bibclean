@@ -38,6 +38,7 @@ var fields = map[string]map[string][]string{
 			"author",
 			"title",
 			"booktitle",
+			"publisher",
 			"location",
 			"pages",
 			"month",
